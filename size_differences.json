@@ -1,0 +1,62 @@
+[
+  {
+    "status": "different",
+    "table": "dzla_t",
+    "column": "dzla003",
+    "file_info": {
+      "type": "457",
+      "size": "20",
+      "position": "3"
+    },
+    "db_info": {
+      "type": "457",
+      "size": "40",
+      "position": "3"
+    }
+  },
+  {
+    "status": "different",
+    "table": "dzld_t",
+    "column": "dzld002",
+    "file_info": {
+      "type": "257",
+      "size": "2",
+      "position": "2"
+    },
+    "db_info": {
+      "type": "457",
+      "size": "5",
+      "position": "2"
+    }
+  },
+  {
+    "status": "different",
+    "table": "dzlf_t",
+    "column": "dzlf002",
+    "file_info": {
+      "type": "257",
+      "size": "2",
+      "position": "2"
+    },
+    "db_info": {
+      "type": "457",
+      "size": "5",
+      "position": "2"
+    }
+  },
+  {
+    "status": "different",
+    "table": "dzlm_t",
+    "column": "dzlm003",
+    "file_info": {
+      "type": "201",
+      "size": "120",
+      "position": "3"
+    },
+    "db_info": {
+      "type": "201",
+      "size": "255",
+      "position": "3"
+    }
+  }
+]
