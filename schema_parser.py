@@ -153,20 +153,51 @@ class SchemaParser:
         finally:
             conn.close()
 
+    def reset_and_save(self):
+        """Reset database and save new schema"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        try:
+            # Drop existing table if exists
+            cursor.execute('DROP TABLE IF EXISTS schema_def')
+            
+            # Create fresh schema
+            self.create_db_schema()
+            
+            # Export data
+            self.export_to_sqlite()
+            
+            print(f"Database reset and new schema saved to {self.db_path}")
+            
+        except Exception as e:
+            conn.rollback()
+            print(f"Error resetting database: {e}")
+            
+        finally:
+            conn.close()
+
 def main():
     """Main function to demonstrate usage"""
-    parser = SchemaParser("/Users/samuel/program/fgldbsch/ds_28_test.sch", "schema.db")
-    parser.parse()
+    import argparse
     
-    # Export to SQLite
-    parser.export_to_sqlite()
+    parser = argparse.ArgumentParser(description='Parse and store schema definitions')
+    parser.add_argument('schema_file', help='Path to schema file (e.g., ds.sch)')
+    parser.add_argument('--db', default='schema.db', help='SQLite database file name (default: schema.db)')
+    parser.add_argument('--reset', action='store_true', help='Reset database and save new schema')
     
-    # Test loading from SQLite
-    new_parser = SchemaParser("/Users/samuel/program/fgldbsch/ds_28_test.sch", "schema.db")
-    new_parser.load_from_sqlite()
+    args = parser.parse_args()
+    
+    schema_parser = SchemaParser(args.schema_file, args.db)
+    schema_parser.parse()
+    
+    if args.reset:
+        schema_parser.reset_and_save()
+    else:
+        schema_parser.export_to_sqlite()
     
     # Print all tables from loaded data
-    new_parser.print_table_info()
-    
+    schema_parser.print_table_info()
+
 if __name__ == "__main__":
     main()
