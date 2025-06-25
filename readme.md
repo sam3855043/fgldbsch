@@ -4,15 +4,9 @@ Tools for managing and comparing database schema definitions.
 
 ## Scripts
 
-- `schema_parser.py`: Parse and store schema definitions
-- `compare_py.py`: Compare schema files with database
-- `search_diff.py`: Search for specific differences in schemas
+### schema_parser.py
 
-## Usage
-
-### Schema Parser
-
-Parse schema file and store in SQLite database:
+Parse and store schema definitions in SQLite database:
 
 ```bash
 # Basic usage
@@ -25,32 +19,70 @@ python schema_parser.py schema_file.sch --db custom.db
 python schema_parser.py schema_file.sch --reset
 ```
 
-### Schema Comparer
+### compare_sch.py
 
-Compare schema file with database:
-
-```bash
-# Compare schema file with database
-python compare_py.py schema_file.sch
-
-# Export differences to JSON
-python compare_py.py schema_file.sch --json output.json
-```
-
-### Difference Searcher
-
-Search for specific differences:
+Compare schema file with database to find differences:
 
 ```bash
-# Search for size differences
-python search_diff.py
+# Compare schema with database
+python compare_sch.py schema_file.sch
 
-# Search and export results
-python search_diff.py --output size_differences.json
+# Compare using custom database
+python compare_sch.py schema_file.sch --db custom.db
 ```
 
-## Data Formats
+Output will show:
+- Missing columns in database
+- Different column types
+- Different column sizes
+- Different column positions
 
-### Schema File Format
+Example output:
+```
+
+# Schema Comparison Tool
+
+A tool to compare table schemas between .sch files and SQLite databases.
+
+## Usage
+
+Basic comparison:
+```bash
+python compare_sch.py schema_file.sch --db database.db
+```
+
+Export differences to JSON:
+```bash
+python compare_sch.py schema_file.sch --db database.db --json differences.json
+```
+
+## JSON Output Format
+
+The differences.json file contains an array of differences with the following structure:
+
+```json
+{
+  "status": "different|missing_in_db",
+  "table": "table_name",
+  "column": "column_name", 
+  "file_info": {
+    "type": "type_id",
+    "size": "size",
+    "position": "position"
+  },
+  "db_info": {
+    "type": "type_id",
+    "size": "size", 
+    "position": "position"
+  }
+}
+```
+
+Where:
+- `status`: Indicates if column is missing or has different attributes
+- `table`: Table name
+- `column`: Column name
+- `file_info`: Column attributes from schema file
+- `db_info`: Column attributes from database (null if missing)
 
 

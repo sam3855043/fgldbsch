@@ -76,7 +76,16 @@ class SchemaComparer:
         }
         self.differences.append(record)
         
-
+    def export_json(self, output_file: str):
+        """Export differences to JSON file"""
+        if not self.differences:
+            print("No differences found")
+            return
+            
+        with open(output_file, 'w') as f:
+            json.dump(self.differences, f, indent=2)
+            
+        print(f"Differences exported to {output_file}")
 
     def print_differences(self):
         """Print differences to console"""
@@ -100,18 +109,22 @@ class SchemaComparer:
 
 def main():
     """Main function to run comparison"""
-    comparer = SchemaComparer(
-        "/Users/samuel/program/fgldbsch/ds_client.sch",
-        "schema.db"
-    )
+    import argparse
     
-    # Run comparison
+    parser = argparse.ArgumentParser(description='Compare schema file with database')
+    parser.add_argument('schema_file', help='Path to schema file (e.g., ds.sch)')
+    parser.add_argument('--db', default='schema.db', help='SQLite database file name (default: schema.db)')
+    parser.add_argument('--json', help='Export differences to JSON file')
+    
+    args = parser.parse_args()
+    
+    comparer = SchemaComparer(args.schema_file, args.db)
     comparer.compare_schemas()
     
-
-    
-    # Print differences to console
-    comparer.print_differences()
+    if args.json:
+        comparer.export_json(args.json)
+    else:
+        comparer.print_differences()
 
 if __name__ == "__main__":
     main()
