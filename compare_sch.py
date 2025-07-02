@@ -3,13 +3,24 @@ import json
 from typing import Dict, List, Tuple
 
 class SchemaComparer:
+    """
+    一個用於比對 .sch 檔案和 SQLite 資料庫中結構定義的類別。
+    A class to compare schema definitions between a .sch file and a SQLite database.
+    """
     def __init__(self, schema_file: str, db_path: str = "schema.db"):
+        """
+        初始化 SchemaComparer。
+        Initializes the SchemaComparer.
+
+        :param schema_file: .sch 結構檔案的路徑。
+        :param db_path: SQLite 資料庫檔案的路徑。
+        """
         self.schema_file = schema_file
         self.db_path = db_path
-        self.differences: List[Dict] = []  # Changed from Dict to List
+        self.differences: List[Dict] = []  # 用於儲存差異的列表
         
     def parse_schema_line(self, line: str) -> Tuple[str, str, str, str, str]:
-        """Parse a single line from schema file"""
+        """解析 .sch 檔案中的單一行。 (Parse a single line from schema file)"""
         parts = line.strip().split('^')
         if len(parts) != 6:
             return None
@@ -17,7 +28,7 @@ class SchemaComparer:
         return table_name, column_name, type_id, size, position
         
     def get_db_column(self, table_name: str, column_name: str) -> Tuple[str, str, str]:
-        """Get column info from database"""
+        """從資料庫中獲取指定欄位的資訊。 (Get column info from database)"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
@@ -33,7 +44,7 @@ class SchemaComparer:
         return result if result else None
         
     def compare_schemas(self):
-        """Compare schema file with database"""
+        """比較 .sch 檔案和資料庫之間的結構差異。 (Compare schema file with database)"""
         with open(self.schema_file, 'r') as f:
             for line in f:
                 if not line.strip():
@@ -47,7 +58,7 @@ class SchemaComparer:
                 db_info = self.get_db_column(table_name, column_name)
                 
                 if not db_info:
-                    # Column not found in database
+                    # 欄位在資料庫中不存在 (Column not found in database)
                     self._record_difference(table_name, column_name, {
                         "status": "missing_in_db",
                         "file_info": {"type": type_id, "size": size, "position": position},
@@ -57,7 +68,7 @@ class SchemaComparer:
                 
                 db_type, db_size, db_position = db_info
                 
-                # Check for differences
+                # 檢查屬性是否有差異 (Check for differences)
                 if db_type != type_id or db_size != size or db_position != position:
                     self._record_difference(table_name, column_name, {
                         "status": "different",
@@ -66,7 +77,7 @@ class SchemaComparer:
                     })
                     
     def _record_difference(self, table_name: str, column_name: str, diff_info: Dict):
-        """Record a difference in the differences list"""
+        """將發現的差異記錄到列表中。 (Record a difference in the differences list)"""
         record = {
             "status": diff_info["status"],
             "table": table_name,
@@ -77,44 +88,47 @@ class SchemaComparer:
         self.differences.append(record)
         
     def export_json(self, output_file: str):
-        """Export differences to JSON file"""
+        """將差異匯出為 JSON 檔案。 (Export differences to JSON file)"""
         if not self.differences:
-            print("No differences found")
+            print("未發現差異。 (No differences found)")
             return
             
-        with open(output_file, 'w') as f:
-            json.dump(self.differences, f, indent=2)
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(self.differences, f, indent=2, ensure_ascii=False)
             
-        print(f"Differences exported to {output_file}")
+        print(f"差異已匯出至 (Differences exported to) {output_file}")
 
     def print_differences(self):
-        """Print differences to console"""
+        """在主控台印出差異。 (Print differences to console)"""
         if not self.differences:
-            print("No differences found")
+            print("未發現差異。 (No differences found)")
             return
             
-        for diff in self.differences:  # 有格式化的輸出每個差異項目
-            print(f"\nTable: {diff['table']}")
+        for diff in self.differences:
+            print(f"\n資料表 (Table): {diff['table']}")
             print("-" * 80)
-            print(f"Column: {diff['column']}")
+            print(f"欄位 (Column): {diff['column']}")
             
             if diff['status'] == 'missing_in_db':
-                print("Status: Missing in database")
-                print("File values:", diff['file_info'])
+                print("狀態 (Status): 資料庫中缺少 (Missing in database)")
+                print("檔案中的值 (File values):", diff['file_info'])
             else:
-                print("Status: Different values")
-                print("File values:", diff['file_info'])
-                print("DB values:", diff['db_info'])
+                print("狀態 (Status): 值不符 (Different values)")
+                print("檔案中的值 (File values):", diff['file_info'])
+                print("資料庫中的值 (DB values):", diff['db_info'])
             print("-" * 40)
 
 def main():
-    """Main function to run comparison"""
+    """
+    主函式，用於執行比對。
+    Main function to run comparison.
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare schema file with database')
-    parser.add_argument('schema_file', help='Path to schema file (e.g., ds.sch)')
-    parser.add_argument('--db', default='schema.db', help='SQLite database file name (default: schema.db)')
-    parser.add_argument('--json', help='Export differences to JSON file')
+    parser = argparse.ArgumentParser(description='Compare schema file with database. (比對 .sch 檔案與資料庫的結構)')
+    parser.add_argument('schema_file', help='Path to schema file (e.g., ds.sch). (.sch 檔案的路徑)')
+    parser.add_argument('--db', default='schema.db', help='SQLite database file name (default: schema.db). (SQLite 資料庫檔案名稱)')
+    parser.add_argument('--json', help='Export differences to JSON file. (將差異匯出至 JSON 檔案)')
     
     args = parser.parse_args()
     

@@ -57,6 +57,10 @@ python compare_sch.py schema_file.sch --db database.db
 Export differences to JSON:
 匯出差異到 JSON 檔案：
 ```bash
+python compare_sch.py schema_file.sch --json differences.json
+```
+
+```bash
 python compare_sch.py schema_file.sch --db database.db --json differences.json
 ```
 
