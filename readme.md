@@ -49,6 +49,9 @@ A tool to compare table schemas between .sch files and SQLite databases.
 ## 使用方式
 
 Basic comparison:
+
+# 基本使用
+python schema_parser.py schema_file.sch
 基本比對：
 ```bash
 python compare_sch.py schema_file.sch --db database.db
